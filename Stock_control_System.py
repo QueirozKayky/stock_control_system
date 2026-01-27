@@ -29,14 +29,15 @@ def menu():
         print('[3] Remove Item from stock')
         print('[4] Update')
         print('[5] Search Item')
-        print('[6]Exit')
+        print('[6] Check Low Stock Items')
+        print('[7]Exit')
 
         try:
             option = int(input('Select One Option: '))
         except ValueError:
-            print('Ops, select one option between 1 and 6')
+            print('Ops, select one option between 1 and 7')
             continue
-        if 1 <= option <=6:
+        if 1 <= option <=7:
             if option == 1:
                 registeritem()
             elif option == 2:
@@ -48,7 +49,11 @@ def menu():
             elif option == 5:
                 searchitem()
             elif option == 6:
+                check_low_stock()
+            elif option == 7:
+                print('-'*20)
                 print('See you soon! BYE')
+                print('-'*20)
                 break
         else:
             print('Invalid Option! Please type a number between 1 and 4 of menu.')
@@ -254,5 +259,23 @@ def searchitem():
     connection.close()
     input("\nPress Enter to return to the Main Menu...")
     
+def check_low_stock():
+    connection = sqlite3.connect('stock_almox.db')
+    cursor = connection.cursor()
+    # Definindo o limite para baixo estoque
+    low_stock_limit = 5
+    cursor.execute("SELECT id, description, quantity FROM stock_almox WHERE quantity <= ?", (low_stock_limit,))
+    rows = cursor.fetchall()
+    if len(rows) == 0:
+        print('No items are low in stock.')
+    else:
+        print('Items low in stock:')
+        print(f"{'ID':<4} | {'Description':<20} | {'Qty':>8}")
+        print("-" * 40)
+        for row in rows:
+            print(f"{row[0]:<4} | {row[1]:<20} | {row[2]:>8}")
+    connection.close()
+    input("\nPress Enter to return to the Main Menu...")
+
 start_db()        
 menu()
