@@ -30,7 +30,8 @@ def menu():
         print('[4] Update')
         print('[5] Search Item')
         print('[6] Check Low Stock Items')
-        print('[7]Exit')
+        print('[7] Withdraw Item')
+        print('[8]Exit')
 
         try:
             option = int(input('Select One Option: '))
@@ -290,9 +291,13 @@ def check_low_stock():#
     connection.close()
     input("\nPress Enter to return to the Main Menu...")
 
+# Retirada de Itens do Estoque
 def withdraw_item():
     connection = sqlite3.connect('stock_almox.db')
     cursor = connection.cursor()
+    print('-----------------')
+    print('>>>Withdraw Item<<<')
+    print('-----------------')
     search_item = str(input('Enter the ID of the item to withdraw: '))
     cursor.execute("SELECT id, description, quantity FROM stock_almox WHERE id = ?", (search_item,))
     row = cursor.fetchone()
@@ -311,7 +316,9 @@ def withdraw_item():
                     new_quantity = row[2] - withdraw_quantity
                     cursor.execute("UPDATE stock_almox SET quantity = ? WHERE id = ?", (new_quantity, search_item))
                     connection.commit()
+                    print('-'*40)
                     print(f'Successfully withdrew {withdraw_quantity} of item ID {search_item}. New quantity is {new_quantity}.')
+                    print('-'*40)
                     break
             except ValueError:
                 print('Please enter a valid integer for quantity.')
