@@ -35,30 +35,33 @@ def menu():
         try:
             option = int(input('Select One Option: '))
         except ValueError:
-            print('Ops, select one option between 1 and 7')
+            print('Ops, select one option between 1 and 8')
             continue
-        if 1 <= option <=7:
+        if 1 <= option <=8:
             if option == 1:
-                registeritem()
+                register_item()
             elif option == 2:
-                listitems()
+                list_items()
             elif option == 3:
-                removeitem()
+                remove_item()
             elif option == 4:
                 update()
             elif option == 5:
-                searchitem()
+                search_item()
             elif option == 6:
                 check_low_stock()
             elif option == 7:
+                withdraw_item()
+            elif option == 8:
                 print('-'*20)
                 print('See you soon! BYE')
                 print('-'*20)
                 break
         else:
             print('Invalid Option! Please type a number between 1 and 4 of menu.')
+
 #registro de item. 
-def registeritem():
+def register_item():
     print('-'*25)
     print('>>>Register new item<<<')
     print('-'*25)
@@ -86,8 +89,9 @@ def registeritem():
     print('--------------------')
     print('>>>Add successfully<<<')
     print('--------------------')
+
 #listagem dos itens.
-def listitems(pause_on_exit=True):
+def list_items(pause_on_exit=True):
 
     print('-'*50)
     print('>>>>>>>>>>>>>>>>List of Stock<<<<<<<<<<<<<<<')
@@ -119,8 +123,10 @@ def listitems(pause_on_exit=True):
 
     if pause_on_exit:
         input("Press Enter to return to the Main Menu...")
+    connection.close()
+
 #remoção dos itens do estoque
-def removeitem():
+def remove_item():
     print('-----------------')
     print('>>>Remove item<<<')
     print('-----------------')
@@ -162,6 +168,7 @@ def removeitem():
     connection.close()            
 
     input('\n Press ENTER to return to the main menu...')
+
 # Atualização de itens
 def update():
     #abrindo conexão com o Banco!
@@ -235,8 +242,9 @@ def update():
     #salvando o banco e fechando.
     connection.commit()            
     connection.close()
-    
-def searchitem():
+
+# Procura de Itens no Estoque
+def search_item():
     #abrindo conexão com o Banco!
     connection = sqlite3.connect('stock_almox.db')
     cursor = connection.cursor()
@@ -248,27 +256,32 @@ def searchitem():
     if len(rows) == 0:
         print('No items found matching your search.')
     else:
+        #exibindo o cabeçalho dos resultados.
         print(f"\nResults for '{search_item}':")
         print('-' * 85)
         print(f"{'ID':<4} | {'Description':<20} | {'Qty':>8} | {'Price':>10} | {'Date':<20}")
         print("-" * 85)
-        
+        #exibindo os resultados da busca.
         for row in rows:
             print(f"{row[0]:<4} | {row[1]:<20} | {row[2]:>8} | {row[3]:>10.2f} | {row[4]}")
             
     connection.close()
     input("\nPress Enter to return to the Main Menu...")
-    
-def check_low_stock():
+
+# Verificação de Itens com Baixo Estoque
+def check_low_stock():#
+    #abrindo conexão com o Banco
     connection = sqlite3.connect('stock_almox.db')
     cursor = connection.cursor()
     # Definindo o limite para baixo estoque
     low_stock_limit = 5
     cursor.execute("SELECT id, description, quantity FROM stock_almox WHERE quantity <= ?", (low_stock_limit,))
+    #buscando itens com quantidade menor ou igual ao limite definido.
     rows = cursor.fetchall()
     if len(rows) == 0:
         print('No items are low in stock.')
     else:
+        #exibindo os itens com baixo estoque.
         print('Items low in stock:')
         print(f"{'ID':<4} | {'Description':<20} | {'Qty':>8}")
         print("-" * 40)
@@ -276,6 +289,34 @@ def check_low_stock():
             print(f"{row[0]:<4} | {row[1]:<20} | {row[2]:>8}")
     connection.close()
     input("\nPress Enter to return to the Main Menu...")
+
+def withdraw_item():
+    connection = sqlite3.connect('stock_almox.db')
+    cursor = Connection.cursor()
+    search_item = str(input('Enter the ID of the item to withdraw: '))
+    cursor.execute("SELECT id, description, quantity FROM stock_almox WHERE id = ?", (search_item,))
+    row = cursor.fetchone()
+    if row is None:
+        print('Item not found.')
+    else:
+        print(f"Item found: ID: {row[0]}, Description: {row[1]}, Quantity: {row[2]}")
+        while True:
+            try:
+                withdraw_quantity = int(input('Enter the quantity to withdraw: '))
+                if withdraw_quantity < 0:
+                    print('Quantity must be positive.')
+                elif withdraw_quantity > row[2]:
+                    print('Insufficient stock to withdraw that quantity.')
+                else:
+                    new_quantity = row[2] - withdraw_quantity
+                    cursor.execute("UPDATE stock_almox SET quantity = ? WHERE id = ?", (new_quantity, search_item))
+                    Connection.commit()
+                    print(f'Successfully withdrew {withdraw_quantity} of item ID {search_item}. New quantity is {new_quantity}.')
+                    break
+            except ValueError:
+                print('Please enter a valid integer for quantity.')
+    connection.close()
+    
 
 start_db()        
 menu()
