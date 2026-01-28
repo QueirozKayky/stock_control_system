@@ -1,0 +1,19 @@
+# Python (Arquivos temporários e compilados)
+__pycache__/
+*.py[cod]
+*$py.class
+vpython/
+.venv/
+env/
+venv/
+ENV/
+
+# Banco de Dados
+stock_almox.db
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
