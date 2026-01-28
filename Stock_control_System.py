@@ -143,7 +143,7 @@ def remove_item():
         print('Stock is currently empty')
     else:
         #trazendo a lista para o usuario verificar qual ID quer remover.
-        listitems(pause_on_exit= False)
+        list_items(pause_on_exit= False)
 
         while True:
             try:
@@ -181,7 +181,7 @@ def update():
     if len(rows) == 0:
         print('Stock is currently empty')
     else:
-        listitems(pause_on_exit=False)
+        list_items(pause_on_exit=False)
     
     
     id_to_update = int(input('Enter te ID: '))
@@ -292,7 +292,7 @@ def check_low_stock():#
 
 def withdraw_item():
     connection = sqlite3.connect('stock_almox.db')
-    cursor = Connection.cursor()
+    cursor = connection.cursor()
     search_item = str(input('Enter the ID of the item to withdraw: '))
     cursor.execute("SELECT id, description, quantity FROM stock_almox WHERE id = ?", (search_item,))
     row = cursor.fetchone()
@@ -310,7 +310,7 @@ def withdraw_item():
                 else:
                     new_quantity = row[2] - withdraw_quantity
                     cursor.execute("UPDATE stock_almox SET quantity = ? WHERE id = ?", (new_quantity, search_item))
-                    Connection.commit()
+                    connection.commit()
                     print(f'Successfully withdrew {withdraw_quantity} of item ID {search_item}. New quantity is {new_quantity}.')
                     break
             except ValueError:
